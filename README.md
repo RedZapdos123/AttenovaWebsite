@@ -1,4 +1,4 @@
-# Attenova – QR Scanner Attendance Management System.
+# Attenova: QR Scanner based Attendance Management System.
 
 A production-ready, role-based attendance platform for universities. Professors create attendance sessions and generate QR codes; students scan to mark attendance; administrators manage subjects/professors, export reports, and audit activity.
 
