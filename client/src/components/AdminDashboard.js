@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import api from '../utils/api';
 import Button from './ui/Button';
 import Input from './ui/Input';
+import { QrCodeIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ darkMode, toggleDarkMode }) => {
   const [professors, setProfessors] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [stats, setStats] = useState({ professors: 0, subjects: 0, students: 0, sessions: 0 });
@@ -48,6 +49,14 @@ const AdminDashboard = () => {
         api.get('/api/admin/stats'),
       ]);
       setProfessors(p.data.professors || []);
+      setSubjects(s.data.subjects || []);
+      if (st?.data?.totals) setStats(st.data.totals);
+    } catch (e) {
+      setError(e?.response?.data?.message || 'Failed to load admin data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAuditLogs = async () => {
     try {
@@ -61,18 +70,8 @@ const AdminDashboard = () => {
     }
   };
 
-  useEffect(() => { fetchAuditLogs(); }, [auditPage, auditAction]);
-
-      setSubjects(s.data.subjects || []);
-      if (st?.data?.totals) setStats(st.data.totals);
-    } catch (e) {
-      setError(e?.response?.data?.message || 'Failed to load admin data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAuditLogs(); }, [auditPage, auditAction]);
 
   const onCreateProfessor = async (e) => {
     e.preventDefault();
@@ -138,10 +137,25 @@ const AdminDashboard = () => {
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center h-16 space-x-3">
-            <img src="/assets/logo.svg" alt="Attenova Logo" className="h-8 w-8" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Attenova</h1>
-            <span className="text-sm text-gray-500 dark:text-gray-400">Administrator Dashboard</span>
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-3">
+              <QrCodeIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Attenova</h1>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Administrator Dashboard</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleDarkMode}
+              className="border-gray-300 dark:border-gray-600"
+              aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {darkMode ? (
+                <SunIcon className="h-4 w-4" />
+              ) : (
+                <MoonIcon className="h-4 w-4" />
+              )}
+            </Button>
           </div>
         </div>
       </header>
@@ -382,7 +396,7 @@ const AdminDashboard = () => {
       </div>
       </div>
       <footer className="bg-black text-white text-center text-sm py-4 px-4 mt-8">
-        <p className="m-0">Attenova • Created by Mridankan Mandal</p>
+        <p className="m-0">Attenova: A creation of Mridankan Mandal.</p>
       </footer>
     </div>
   );

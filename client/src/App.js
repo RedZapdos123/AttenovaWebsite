@@ -50,7 +50,7 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/professor" element={<ProfessorDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
         <Route path="/student" element={<StudentDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />
-        <Route path="/admin-dashboard" element={<ProtectedRoute allow={["administrator"]} element={<AdminDashboard />} />} />
+        <Route path="/admin-dashboard" element={<ProtectedRoute allow={["administrator"]} element={<AdminDashboard darkMode={darkMode} toggleDarkMode={toggleDarkMode} />} />} />
         <Route path="/" element={<Login />} />
       </Routes>
     </div>

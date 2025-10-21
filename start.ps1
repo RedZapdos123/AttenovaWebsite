@@ -1,9 +1,8 @@
 # Attenova QR Scanner Attendance System - Start Script
 # This script starts both the backend and frontend development servers
 
-Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
 Write-Host "Attenova Start Script" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Check if node_modules exist in server
@@ -13,7 +12,7 @@ if (-not (Test-Path "server/node_modules")) {
     Write-Host "Please run: .\setup.ps1" -ForegroundColor Yellow
     exit 1
 }
-Write-Host "✓ Server dependencies found" -ForegroundColor Green
+Write-Host "Server dependencies found" -ForegroundColor Green
 
 # Check if node_modules exist in client
 Write-Host "Checking client dependencies..." -ForegroundColor Yellow
@@ -22,26 +21,36 @@ if (-not (Test-Path "client/node_modules")) {
     Write-Host "Please run: .\setup.ps1" -ForegroundColor Yellow
     exit 1
 }
-Write-Host "✓ Client dependencies found" -ForegroundColor Green
+Write-Host "Client dependencies found" -ForegroundColor Green
 
 # Check MongoDB
 Write-Host "Checking MongoDB..." -ForegroundColor Yellow
 $mongoRunning = $false
+
+# Try to check if MongoDB service is running
 try {
-    $mongoTest = mongosh --eval "db.adminCommand('ping')" 2>$null
-    if ($LASTEXITCODE -eq 0) {
+    $mongoService = Get-Service MongoDB -ErrorAction SilentlyContinue
+    if ($mongoService -and $mongoService.Status -eq "Running") {
         $mongoRunning = $true
-        Write-Host "✓ MongoDB is running" -ForegroundColor Green
+        Write-Host "MongoDB service is running" -ForegroundColor Green
     }
 } catch {
-    Write-Host "ERROR: MongoDB is not running!" -ForegroundColor Red
-    Write-Host "Please start MongoDB on localhost:27017" -ForegroundColor Yellow
-    exit 1
+    # If service check fails, try mongosh command
+    try {
+        $mongoTest = mongosh --eval "db.adminCommand('ping')" 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $mongoRunning = $true
+            Write-Host "MongoDB is running" -ForegroundColor Green
+        }
+    } catch {
+        # MongoDB check failed
+    }
 }
 
 if (-not $mongoRunning) {
     Write-Host "ERROR: MongoDB is not running!" -ForegroundColor Red
     Write-Host "Please start MongoDB on localhost:27017" -ForegroundColor Yellow
+    Write-Host "Run: net start MongoDB (requires administrator privileges)" -ForegroundColor Yellow
     exit 1
 }
 
@@ -78,9 +87,7 @@ npm start
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $frontendScript
 
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Servers Started!" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Backend API: http://localhost:5000" -ForegroundColor Green
 Write-Host "Frontend App: http://localhost:3000" -ForegroundColor Green

@@ -394,7 +394,7 @@ const ProfessorDashboard = ({ darkMode, toggleDarkMode }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <img src="/assets/logo.svg" alt="Attenova Logo" className="h-8 w-8" />
+              <QrCodeIcon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 Attenova
               </h1>
@@ -1058,7 +1058,7 @@ const ProfessorDashboard = ({ darkMode, toggleDarkMode }) => {
 
       </main>
       <footer className="bg-black text-white text-center text-sm py-4 px-4 mt-8">
-        <p className="m-0">Attenova • Created by Mridankan Mandal</p>
+        <p className="m-0">Attenova: A creation of Mridankan Mandal.</p>
       </footer>
     </div>
   );

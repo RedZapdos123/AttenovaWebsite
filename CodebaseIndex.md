@@ -1,20 +1,20 @@
-# CodebaseIndex – Attenova QR Scanner Attendance System
+# CodebaseIndex – Attenova QR Scanner Attendance System.
 
 A comprehensive developer-oriented map of the Attenova codebase. All paths are relative to the project root.
 
 ---
 
-## Project Overview
+## Project Overview:
 
 Attenova is a role-based attendance management system built with:
-- **Frontend**: React 18 with Tailwind CSS for responsive UI
-- **Backend**: Node.js/Express with MongoDB and Mongoose ODM
-- **Authentication**: JWT-based with role-based access control (RBAC)
-- **Roles**: Student, Professor, Administrator
+- **Frontend**: React 18 with Tailwind CSS for responsive UI.
+- **Backend**: Node.js/Express with MongoDB and Mongoose ODM.
+- **Authentication**: JWT-based with role-based access control (RBAC).
+- **Roles**: Student, Professor, Administrator.
 
 ---
 
-## Directory Structure
+## Directory Structure:
 
 ```
 .
@@ -87,9 +87,9 @@ Attenova is a role-based attendance management system built with:
 
 ---
 
-## Key Files by Category
+## Key Files by Category:
 
-### Models (server/models)
+### Models (server/models):
 
 | File | Purpose | Key Exports |
 |------|---------|-------------|
@@ -100,13 +100,13 @@ Attenova is a role-based attendance management system built with:
 | AuditLog.js | Administrative action logging | AuditLog model |
 
 **Schema Details**:
-- **User**: email (unique), password (hashed), role, name, year, section, isActive, timestamps
-- **Subject**: subjectName, subjectCode, year, section, professorId, description, isActive, timestamps
-- **Attendance**: token, expiration, subjectId, sessionId, student, attendanceType, professorId, points, timestamps
-- **AttendanceSession**: subjectId, professorId, date, sessionType, sessionName, attendances[], totalStudents, presentCount, absentCount, timestamps
-- **AuditLog**: action, actorId, actorEmail, details, timestamps
+- **User**: email (unique), password (hashed), role, name, year, section, isActive, timestamps.
+- **Subject**: subjectName, subjectCode, year, section, professorId, description, isActive, timestamps.
+- **Attendance**: token, expiration, subjectId, sessionId, student, attendanceType, professorId, points, timestamps.
+- **AttendanceSession**: subjectId, professorId, date, sessionType, sessionName, attendances[], totalStudents, presentCount, absentCount, timestamps.
+- **AuditLog**: action, actorId, actorEmail, details, timestamps.
 
-### Controllers (server/controllers)
+### Controllers (server/controllers):
 
 | File | Purpose | Key Functions |
 |------|---------|----------------|
@@ -115,7 +115,7 @@ Attenova is a role-based attendance management system built with:
 | subjectController.js | Subject operations | getSubjects, getSubjectsByProfessor |
 | adminController.js | Admin operations | createProfessor, createSubject, deactivate*, getStats, getAuditLogs, exportAttendanceCsv, uploadAttendance |
 
-### Routes (server/routes)
+### Routes (server/routes):
 
 | File | Base Path | Key Endpoints |
 |------|-----------|---------------|
@@ -124,7 +124,7 @@ Attenova is a role-based attendance management system built with:
 | subject.js | /api/subjects | GET / (list subjects) |
 | admin.js | /api/admin | POST /create-professor, POST /create-subject, DELETE /professors/:id, DELETE /subjects/:id, GET /stats, GET /audit-logs, GET /export-csv, POST /upload-attendance |
 
-### Client Components (client/src/components)
+### Client Components (client/src/components):
 
 | File | Purpose | Key Features |
 |------|---------|--------------|
@@ -137,48 +137,48 @@ Attenova is a role-based attendance management system built with:
 
 ---
 
-## Technology Stack
+## Technology Stack:
 
-### Backend
-- Node.js 18 LTS, Express 4.21, MongoDB 4.4+, Mongoose 8.13
-- jsonwebtoken 9.x, bcryptjs 3.x, helmet 6.x, cors 2.8.x
-- express-rate-limit 6.7.x, morgan 1.10.x, multer 1.4.5-lts.1
-- csv-parser 3.x, csv-writer 1.6.x, dotenv 16.x
+### Backend:
+- Node.js 18 LTS, Express 4.21, MongoDB 4.4+, Mongoose 8.13.
+- jsonwebtoken 9.x, bcryptjs 3.x, helmet 6.x, cors 2.8.x.
+- express-rate-limit 6.7.x, morgan 1.10.x, multer 1.4.5-lts.1.
+- csv-parser 3.x, csv-writer 1.6.x, dotenv 16.x.
 
-### Frontend
-- React 18, React Router DOM 6, Tailwind CSS 3.3, Axios 0.27.x
-- qrcode.react 4.2.0, react-qr-scanner 1.0.0-alpha.11
-- @heroicons/react 2.2.x, clsx 2.1.x
-
----
-
-## Code Organization Patterns
-
-### Authentication Flow
-1. User submits credentials via Login component
-2. Frontend calls POST /api/auth/login
-3. Backend validates, returns JWT
-4. Frontend stores JWT in localStorage
-5. Axios interceptor attaches JWT to all requests
-6. Backend middleware validates JWT and attaches user to req.user
-7. ProtectedRoute guards control access
-
-### Attendance Workflow
-1. Professor generates QR code with expiry time (1–60 minutes)
-2. Backend creates AttendanceSession and Attendance record
-3. Student scans QR or enters token manually
-4. Backend validates token expiration and marks attendance
-5. Attendance record updated with student reference
-
-### Admin Operations
-1. Admin creates/deactivates professors and subjects
-2. Each action logged to AuditLog collection
-3. Admin exports attendance CSV with optional filters
-4. Admin views paginated audit logs with action filtering
+### Frontend:
+- React 18, React Router DOM 6, Tailwind CSS 3.3, Axios 0.27.x.
+- qrcode.react 4.2.0, react-qr-scanner 1.0.0-alpha.11.
+- @heroicons/react 2.2.x, clsx 2.1.x.
 
 ---
 
-## Environment Variables
+## Code Organization Patterns:
+
+### Authentication Flow:
+1. User submits credentials via Login component.
+2. Frontend calls POST /api/auth/login.
+3. Backend validates, returns JWT.
+4. Frontend stores JWT in localStorage.
+5. Axios interceptor attaches JWT to all requests.
+6. Backend middleware validates JWT and attaches user to req.user.
+7. ProtectedRoute guards control access.
+
+### Attendance Workflow:
+1. Professor generates QR code with expiry time (1–60 minutes).
+2. Backend creates AttendanceSession and Attendance record.
+3. Student scans QR or enters token manually.
+4. Backend validates token expiration and marks attendance.
+5. Attendance record updated with student reference.
+
+### Admin Operations:
+1. Admin creates/deactivates professors and subjects.
+2. Each action logged to AuditLog collection.
+3. Admin exports attendance CSV with optional filters.
+4. Admin views paginated audit logs with action filtering.
+
+---
+
+## Environment Variables:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|

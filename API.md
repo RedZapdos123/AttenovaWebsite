@@ -1,31 +1,31 @@
-# API Documentation (Attenova)
+# API Documentation (Attenova).
 
 Comprehensive API reference for the QR Scanner Attendance Management System. All endpoints are JSON unless noted.
 
-## Base URL
-- Development (default): http://localhost:5000
-- Frontend dev server: http://localhost:3000 (proxies or calls the base URL)
+## Base URL:
+- Development (default): http://localhost:5000.
+- Frontend dev server: http://localhost:3000 (proxies or calls the base URL).
 
-## Authentication and JWT Usage
-- Obtain a JWT via POST /api/auth/login
+## Authentication and JWT Usage:
+- Obtain a JWT via POST /api/auth/login.
 - Send the token with every protected request using the Authorization header:
-  - Authorization: Bearer <jwt_token>
-- Token payload (typical): { id: <ObjectId>, role: 'student'|'professor'|'administrator' }
-- Token expiration: ~1 hour (configurable)
+  - Authorization: Bearer <jwt_token>.
+- Token payload (typical): { id: <ObjectId>, role: 'student'|'professor'|'administrator' }.
+- Token expiration: ~1 hour (configurable).
 
-## Errors and Conventions
-- Content-Type: application/json
-- Error shape (typical): { "error": "<message>", "code": <optional_code> }
-- Common status codes: 200/201 success, 400 validation, 401 unauthenticated, 403 forbidden, 404 not found, 429 rate limit, 500 server
+## Errors and Conventions:
+- Content-Type: application/json.
+- Error shape (typical): { "error": "<message>", "code": <optional_code> }.
+- Common status codes: 200/201 success, 400 validation, 401 unauthenticated, 403 forbidden, 404 not found, 429 rate limit, 500 server.
 
 ---
 
-## Auth Endpoints
+## Auth Endpoints:
 
-### POST /api/auth/login
+### POST /api/auth/login:
 Authenticate a user and receive a JWT.
 
-Request
+Request:
 ```
 POST /api/auth/login
 Content-Type: application/json
@@ -36,7 +36,7 @@ Content-Type: application/json
 }
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 {
   "token": "<JWT>",
@@ -44,26 +44,26 @@ Successful Response (200)
 }
 ```
 
-Common Errors
-- 400 Invalid credentials
+Common Errors:
+- 400 Invalid credentials.
 ```
 { "error": "Invalid email or password" }
 ```
-- 401 Account disabled (if applicable)
+- 401 Account disabled (if applicable).
 ```
 { "error": "Account disabled" }
 ```
 
-### GET /api/auth/me
+### GET /api/auth/me:
 Get current user profile (requires JWT).
 
-Request
+Request:
 ```
 GET /api/auth/me
 Authorization: Bearer <JWT>
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 {
   "id": "665f...",
@@ -73,20 +73,20 @@ Successful Response (200)
 }
 ```
 
-Errors
-- 401 Missing/invalid token
+Errors:
+- 401 Missing/invalid token.
 ```
 { "error": "Unauthorized" }
 ```
 
 ---
 
-## Attendance Endpoints
+## Attendance Endpoints:
 
-### POST /api/attendance/generate
+### POST /api/attendance/generate:
 Professor generates a QR token for a session. Optionally set expiry minutes (1–60).
 
-Request
+Request:
 ```
 POST /api/attendance/generate
 Authorization: Bearer <JWT>
@@ -95,12 +95,12 @@ Content-Type: application/json
 {
   "subjectId": "666a...",
   "points": 1,
-  "expiryMinutes": 10,    
-  "sessionType": "qr"     
+  "expiryMinutes": 10,
+  "sessionType": "qr"
 }
 ```
 
-Successful Response (201)
+Successful Response (201):
 ```
 {
   "token": "X7Q9-ABCD-1234",
@@ -111,20 +111,20 @@ Successful Response (201)
 }
 ```
 
-Errors
-- 400 Missing required fields / invalid expiry
+Errors:
+- 400 Missing required fields / invalid expiry.
 ```
 { "error": "expiryMinutes must be between 1 and 60" }
 ```
-- 403 Not a professor
+- 403 Not a professor.
 ```
 { "error": "Forbidden" }
 ```
 
-### POST /api/attendance/mark
+### POST /api/attendance/mark:
 Student marks attendance by QR token or manual token.
 
-Request
+Request:
 ```
 POST /api/attendance/mark
 Authorization: Bearer <JWT>
@@ -135,7 +135,7 @@ Content-Type: application/json
 }
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 {
   "status": "marked",
@@ -145,26 +145,26 @@ Successful Response (200)
 }
 ```
 
-Common Errors
-- 400 Token expired or already used
+Common Errors:
+- 400 Token expired or already used.
 ```
 { "error": "QR code expired" }
 ```
-- 403 Not a student
+- 403 Not a student.
 ```
 { "error": "Forbidden" }
 ```
 
-### GET /api/attendance/record
+### GET /api/attendance/record:
 Get the current student's attendance summary.
 
-Request
+Request:
 ```
 GET /api/attendance/record
 Authorization: Bearer <JWT>
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 {
   "summary": [
@@ -176,10 +176,10 @@ Successful Response (200)
 }
 ```
 
-### POST /api/attendance/mark-manual
+### POST /api/attendance/mark-manual:
 Professor manually marks a student's attendance.
 
-Request
+Request:
 ```
 POST /api/attendance/mark-manual
 Authorization: Bearer <JWT>
@@ -192,15 +192,15 @@ Content-Type: application/json
 }
 ```
 
-Successful Response (201)
+Successful Response (201):
 ```
 { "status": "marked", "attendanceId": "66ac..." }
 ```
 
-### POST /api/attendance/remove-attendance-manual
+### POST /api/attendance/remove-attendance-manual:
 Professor removes a previously manual-marked attendance.
 
-Request
+Request:
 ```
 POST /api/attendance/remove-attendance-manual
 Authorization: Bearer <JWT>
@@ -211,25 +211,25 @@ Content-Type: application/json
 }
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 { "status": "removed" }
 ```
 
 ---
 
-## Subjects Endpoints
+## Subjects Endpoints:
 
-### GET /api/subjects
+### GET /api/subjects:
 List subjects relevant to the requester (professor or student) or all if admin.
 
-Request
+Request:
 ```
 GET /api/subjects
 Authorization: Bearer <JWT>
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 [
   {
@@ -244,24 +244,24 @@ Successful Response (200)
 ]
 ```
 
-Errors
-- 401 Unauthorized (missing/invalid JWT)
-- 500 Server error
+Errors:
+- 401 Unauthorized (missing/invalid JWT).
+- 500 Server error.
 
 ---
 
-## Admin Endpoints (administrator role required)
+## Admin Endpoints (administrator role required):
 
-### GET /api/admin/stats
+### GET /api/admin/stats:
 Dashboard statistics.
 
-Request
+Request:
 ```
 GET /api/admin/stats
 Authorization: Bearer <JWT>
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 {
   "counts": { "professors": 3, "subjects": 6, "students": 45, "sessions": 20 },
@@ -271,16 +271,16 @@ Successful Response (200)
 }
 ```
 
-### GET /api/admin/audit-logs?limit=10&offset=0&action=create-subject
+### GET /api/admin/audit-logs?limit=10&offset=0&action=create-subject:
 Paginated audit log viewer with optional action filter.
 
-Request
+Request:
 ```
 GET /api/admin/audit-logs?limit=10&offset=0&action=create-subject
 Authorization: Bearer <JWT>
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 {
   "data": [
@@ -290,17 +290,17 @@ Successful Response (200)
 }
 ```
 
-### GET /api/admin/export-csv?sessionType=qr
+### GET /api/admin/export-csv?sessionType=qr:
 Export attendance CSV. Returns text/csv.
 
-Request
+Request:
 ```
 GET /api/admin/export-csv?sessionType=qr
 Authorization: Bearer <JWT>
 Accept: text/csv
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 HTTP/1.1 200 OK
 Content-Type: text/csv
@@ -309,10 +309,10 @@ subjectCode,studentEmail,date,sessionType,points
 SE401,iib2024017@iiita.ac.in,2025-09-01T08:00:00Z,qr,1
 ```
 
-### POST /api/admin/create-professor
+### POST /api/admin/create-professor:
 Create a professor account.
 
-Request
+Request:
 ```
 POST /api/admin/create-professor
 Authorization: Bearer <JWT>
@@ -325,15 +325,15 @@ Content-Type: application/json
 }
 ```
 
-Successful Response (201)
+Successful Response (201):
 ```
 { "id": "66af...", "email": "new.prof@iiita.ac.in" }
 ```
 
-### POST /api/admin/create-subject
+### POST /api/admin/create-subject:
 Create a subject.
 
-Request
+Request:
 ```
 POST /api/admin/create-subject
 Authorization: Bearer <JWT>
@@ -348,12 +348,12 @@ Content-Type: application/json
 }
 ```
 
-Successful Response (201)
+Successful Response (201):
 ```
 { "id": "66b0...", "subjectCode": "ML403" }
 ```
 
-### POST /api/admin/deactivate-professor
+### POST /api/admin/deactivate-professor:
 ```
 POST /api/admin/deactivate-professor
 Authorization: Bearer <JWT>
@@ -362,12 +362,12 @@ Content-Type: application/json
 { "email": "xerontitan90@gmail.com", "isActive": false }
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 { "email": "xerontitan90@gmail.com", "isActive": false }
 ```
 
-### POST /api/admin/deactivate-subject
+### POST /api/admin/deactivate-subject:
 ```
 POST /api/admin/deactivate-subject
 Authorization: Bearer <JWT>
@@ -376,21 +376,21 @@ Content-Type: application/json
 { "subjectCode": "SE401", "isActive": false }
 ```
 
-Successful Response (200)
+Successful Response (200):
 ```
 { "subjectCode": "SE401", "isActive": false }
 ```
 
-Errors (Admin common)
-- 403 Forbidden (not administrator)
-- 400 Validation error (duplicate email/subject code)
-- 404 Entity not found
+Errors (Admin common):
+- 403 Forbidden (not administrator).
+- 400 Validation error (duplicate email/subject code).
+- 404 Entity not found.
 
 ---
 
-## Database Schemas (Field-level)
+## Database Schemas (Field-level):
 
-### User (server/models/User.js)
+### User (server/models/User.js):
 | Field | Type | Required | Validation | Default | Description |
 |------|------|----------|------------|---------|-------------|
 | email | String | Yes | unique | — | Login and identity |
@@ -403,7 +403,7 @@ Errors (Admin common)
 | createdAt | Date | No | — | now | Timestamp |
 | updatedAt | Date | No | — | now | Timestamp |
 
-### Subject (server/models/Subject.js)
+### Subject (server/models/Subject.js):
 | Field | Type | Required | Validation | Default | Description |
 |------|------|----------|------------|---------|-------------|
 | subjectName | String | Yes | — | — | Display name |
@@ -417,7 +417,7 @@ Errors (Admin common)
 | createdAt | Date | No | — | now | Timestamp |
 | updatedAt | Date | No | — | now | Timestamp |
 
-### AttendanceSession (server/models/AttendanceSession.js)
+### AttendanceSession (server/models/AttendanceSession.js):
 | Field | Type | Required | Validation | Default | Description |
 |------|------|----------|------------|---------|-------------|
 | subjectId | ObjectId(Subject) | Yes | ref | — | Session subject |
@@ -431,7 +431,7 @@ Errors (Admin common)
 | createdAt | Date | No | — | now | Timestamp |
 | updatedAt | Date | No | — | now | Timestamp |
 
-### Attendance (server/models/Attendance.js)
+### Attendance (server/models/Attendance.js):
 | Field | Type | Required | Validation | Default | Description |
 |------|------|----------|------------|---------|-------------|
 | token | String | Cond. | — | — | QR token (or manual token) |
@@ -444,7 +444,7 @@ Errors (Admin common)
 | createdAt | Date | No | — | now | Timestamp |
 | updatedAt | Date | No | — | now | Timestamp |
 
-### AuditLog (server/models/AuditLog.js)
+### AuditLog (server/models/AuditLog.js):
 | Field | Type | Required | Validation | Default | Description |
 |------|------|----------|------------|---------|-------------|
 | action | String | Yes | — | — | Action verb (e.g., create-subject) |
@@ -456,14 +456,14 @@ Errors (Admin common)
 
 ---
 
-## Rate Limiting
-- Global limiter: 100 requests per 15 minutes per IP (see server/server.js)
-- Exceeding returns 429 Too Many Requests with a generic message
+## Rate Limiting:
+- Global limiter: 100 requests per 15 minutes per IP (see server/server.js).
+- Exceeding returns 429 Too Many Requests with a generic message.
 
-## Network Restrictions (Development)
-- collegeNetworkOnly middleware restricts to campus IPs in production configurations; always allows localhost in development
+## Network Restrictions (Development):
+- collegeNetworkOnly middleware restricts to campus IPs in production configurations; always allows localhost in development.
 
-## Notes
+## Notes:
 - Field names and flows reflect the current codebase; see CodebaseIndex.md for file responsibilities and model locations.
 - Demo credentials and seed data are defined in server/seedData.js.
 
