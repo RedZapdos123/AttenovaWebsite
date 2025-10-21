@@ -128,11 +128,6 @@ See CodebaseIndex.md for a complete code map, file responsibilities, database sc
 
 For detailed API documentation including request/response examples and complete schema definitions, see API.md.
 
-## Logo Integration:
-The application includes a placeholder logo at `client/src/assets/logo.svg`. To add your custom logo:
-1. Replace `client/src/assets/logo.svg` with your SVG file (keep the same filename and location).
-2. The logo will automatically appear in the header of all dashboard pages (Admin, Professor, Student).
-3. Ensure your SVG is optimized and fits within a 32x32px display area (h-8 w-8 in Tailwind).
 
 ## Credits:
 Created by Mridankan Mandal.
