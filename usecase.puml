@@ -1,0 +1,113 @@
+@startuml
+' Attenova – QR Scanner Attendance Management System
+' Use Case Diagram
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam ArrowColor #555555
+skinparam defaultTextAlignment left
+' --- Enhanced Styling ---
+skinparam backgroundColor #FCFCFE
+skinparam defaultFontName "Segoe UI, Inter, Arial"
+skinparam defaultFontSize 14
+skinparam ArrowThickness 2
+skinparam packageBorderThickness 2
+skinparam usecaseBorderThickness 2
+skinparam ActorBorderColor #263238
+skinparam ArrowColor #546E7A
+
+skinparam packageBackgroundColor #F7FAFC
+skinparam packageBorderColor #94A3B8
+skinparam usecaseBackgroundColor #EEF2FF
+skinparam usecaseBorderColor #4F46E5
+' --- End Styling ---
+
+
+actor Student as A_Student #2196F3
+actor Professor as A_Professor #43A047
+actor Administrator as A_Admin #EF6C00
+
+rectangle "Attenova QR Scanner Attendance System" as System {
+  package "Attendance Management" as UC_Attendance #E3F2FD {
+    usecase "Scan QR Code" as UC_ScanQR
+    usecase "Enter Token Manually" as UC_EnterToken
+    usecase "View Personal Attendance History" as UC_ViewHistory
+    usecase "View Subject Statistics" as UC_ViewSubjectStats
+    usecase "Generate QR Code\n(expiry 1–60 min)" as UC_GenerateQR
+    usecase "Mark Attendance Manually" as UC_MarkManual
+    usecase "Remove Manual Attendance" as UC_RemoveManual
+    usecase "View Subject Sessions" as UC_ViewSessions
+  }
+
+  package "User Management" as UC_UserMgmt #E8F5E9 {
+    usecase "Manage Subjects" as UC_ManageSubjects
+    usecase "Create Professor Account" as UC_CreateProf
+    usecase "Deactivate Professor" as UC_DeactivateProf
+    usecase "Create Subject" as UC_CreateSubj
+    usecase "Deactivate Subject" as UC_DeactivateSubj
+  }
+
+  package "Reporting & Export" as UC_Reporting #FFF3E0 {
+    usecase "Export Attendance CSV" as UC_ExportCSV_Prof
+    usecase "Export Attendance CSV\n(session type filter)" as UC_ExportCSV_Admin
+    usecase "View Dashboard Statistics" as UC_ViewStats
+    usecase "View Audit Logs\n(pagination & filters)" as UC_AuditLogs
+    usecase "Bulk Upload Attendance CSV" as UC_BulkUpload
+  }
+
+  ' Common use case
+  usecase "Login" as UC_Login
+}
+
+' Associations (actors to use cases)
+A_Student -- UC_Login
+A_Student -- UC_ScanQR
+A_Student -- UC_EnterToken
+A_Student -- UC_ViewHistory
+A_Student -- UC_ViewSubjectStats
+
+A_Professor -- UC_Login
+A_Professor -- UC_GenerateQR
+A_Professor -- UC_MarkManual
+A_Professor -- UC_RemoveManual
+A_Professor -- UC_ViewSessions
+A_Professor -- UC_ExportCSV_Prof
+A_Professor -- UC_ManageSubjects
+
+A_Admin -- UC_Login
+A_Admin -- UC_CreateProf
+A_Admin -- UC_DeactivateProf
+A_Admin -- UC_CreateSubj
+A_Admin -- UC_DeactivateSubj
+A_Admin -- UC_ViewStats
+A_Admin -- UC_ExportCSV_Admin
+A_Admin -- UC_AuditLogs
+A_Admin -- UC_BulkUpload
+
+' Include relationships (authenticated actions require Login)
+UC_ScanQR .> UC_Login : <<include>>
+UC_EnterToken .> UC_Login : <<include>>
+UC_ViewHistory .> UC_Login : <<include>>
+UC_ViewSubjectStats .> UC_Login : <<include>>
+UC_GenerateQR .> UC_Login : <<include>>
+UC_MarkManual .> UC_Login : <<include>>
+UC_RemoveManual .> UC_Login : <<include>>
+UC_ViewSessions .> UC_Login : <<include>>
+UC_ExportCSV_Prof .> UC_Login : <<include>>
+UC_ManageSubjects .> UC_Login : <<include>>
+UC_CreateProf .> UC_Login : <<include>>
+UC_DeactivateProf .> UC_Login : <<include>>
+UC_CreateSubj .> UC_Login : <<include>>
+UC_DeactivateSubj .> UC_Login : <<include>>
+UC_ViewStats .> UC_Login : <<include>>
+UC_ExportCSV_Admin .> UC_Login : <<include>>
+UC_AuditLogs .> UC_Login : <<include>>
+UC_BulkUpload .> UC_Login : <<include>>
+
+note bottom of System
+  Technology stack: React 18 (client), Express 4.21 (server), MongoDB with Mongoose 8.13.
+  Protected actions require JWT after successful Login.
+end note
+
+@enduml

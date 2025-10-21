@@ -1,0 +1,208 @@
+@startuml
+' Attenova – QR Scanner Attendance Management System
+' High-level architecture and key flows/components
+
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam ArrowColor #555555
+skinparam ClassAttributeIconSize 0
+skinparam defaultTextAlignment left
+' --- Enhanced Styling ---
+skinparam backgroundColor #FCFCFE
+skinparam defaultFontName "Segoe UI, Inter, Arial"
+skinparam defaultFontSize 14
+skinparam ArrowThickness 2
+skinparam componentBorderThickness 2
+skinparam packageBorderThickness 2
+skinparam classBorderThickness 2
+skinparam databaseBorderThickness 2
+skinparam ActorBorderColor #263238
+skinparam ActorBackgroundColor #E3F2FD
+skinparam ArrowColor #546E7A
+
+' Element defaults
+skinparam componentBackgroundColor #F0F4FF
+skinparam componentBorderColor #1C64F2
+skinparam packageBackgroundColor #F7FAFC
+skinparam packageBorderColor #94A3B8
+skinparam classBackgroundColor #FFF7ED
+skinparam classBorderColor #FB923C
+skinparam databaseBackgroundColor #F3E5F5
+skinparam databaseBorderColor #8E24AA
+' --- End Styling ---
+
+
+title Attenova Architecture (React 18 • Express 4.21 • MongoDB • Mongoose 8.13)
+
+' Layers
+package "Client (React 18)" as Client #E3F2FD {
+  component Login as C_Login
+  component ProtectedRoute as C_ProtectedRoute
+  component "AdminDashboard" as C_Admin
+  component "ProfessorDashboard" as C_Professor
+  component "StudentDashboard" as C_Student
+}
+
+package "Server (Express 4.21)" as Server #E8F5E9 {
+  package "Routes (/api/*)" as Routes #C8E6C9 {
+    component "/api/auth" as R_Auth
+    component "/api/attendance" as R_Att
+    component "/api/subjects" as R_Sub
+    component "/api/admin" as R_Admin
+  }
+  package "Controllers" as Controllers #A5D6A7 {
+    component authController as Ctrl_Auth
+    component attendanceController as Ctrl_Att
+    component subjectController as Ctrl_Sub
+    component adminController as Ctrl_Admin
+  }
+  package "Middleware" as Middleware #81C784 {
+    component verifyToken as M_Verify
+    component collegeNetworkOnly as M_Network
+    component errorHandler as M_Error
+    component rateLimiter as M_Rate
+    component helmet_cors as M_Sec
+  }
+}
+
+database "MongoDB" as DB #F3E5F5 {
+}
+
+package "Models (Mongoose 8.13)" as Models {
+  class User {
+    +_id: ObjectId
+    +email: String {unique}
+    +password: String (bcrypt)
+    +role: String <<student|professor|administrator>>
+    +name: String
+    +year: String (students)
+    +section: String (students)
+    +isActive: Boolean = true
+    ..timestamps..
+  }
+  class Subject {
+    +_id: ObjectId
+    +subjectName: String
+    +subjectCode: String {unique}
+    +year: String
+    +section: String
+    +professorEmail: String
+    +professorId: ObjectId -> User
+    +isActive: Boolean = true
+    ..timestamps..
+  }
+  class AttendanceSession {
+    +_id: ObjectId
+    +subjectId: ObjectId -> Subject
+    +professorId: ObjectId -> User
+    +date: Date
+    +sessionType: String <<qr|manual|bulk>>
+    +attendances: [ObjectId] -> Attendance
+    +totalStudents: Number
+    +presentCount: Number
+    +absentCount: Number
+    ..timestamps..
+  }
+  class Attendance {
+    +_id: ObjectId
+    +token: String
+    +expiration: Date
+    +subjectId: ObjectId -> Subject
+    +sessionId: ObjectId -> AttendanceSession
+    +student: ObjectId -> User (nullable for header)
+    +attendanceType: String <<qr|manual|bulk>>
+    +professorId: ObjectId -> User
+    ..timestamps..
+  }
+  class AuditLog {
+    +_id: ObjectId
+    +action: String
+    +actorId: ObjectId -> User
+    +actorEmail: String
+    +details: Object
+    ..timestamps..
+  }
+}
+
+' Relationships between models
+User "1" <-- "*" Subject : professorId
+Subject "1" --> "*" AttendanceSession : subjectId
+User "1" --> "*" AttendanceSession : professorId
+AttendanceSession "1" --> "*" Attendance : attendances
+Subject "1" --> "*" Attendance : subjectId
+User "1" --> "*" Attendance : student / professorId
+User "1" --> "*" AuditLog : actorId
+
+' Data layer bindings
+Models -[hidden]-> DB
+DB -[hidden]-> Models
+
+' Route to controller mapping
+R_Auth --> Ctrl_Auth
+R_Att --> Ctrl_Att
+R_Sub --> Ctrl_Sub
+R_Admin --> Ctrl_Admin
+
+' Middleware wiring (conceptual path)
+Client -[#1C64F2]-> R_Auth : HTTP
+Client -[#1C64F2]-> R_Att : HTTP (Authorization: Bearer <JWT>)
+Client -[#1C64F2]-> R_Sub : HTTP (Authorization: Bearer <JWT>)
+Client -[#1C64F2]-> R_Admin : HTTP (Authorization: Bearer <JWT>)
+
+M_Sec ..[#7B1FA2]> Routes : helmet/cors
+M_Rate ..[#FF6F00]> Routes : express-rate-limit
+M_Network ..[#795548]> Routes : network allow-list
+M_Verify ..[#F50057]> R_Att : JWT required
+M_Verify ..[#F50057]> R_Sub : JWT required
+M_Verify ..[#F50057]> R_Admin : JWT admin required
+M_Error ..[#424242]> Routes : centralized error handling
+
+' Controllers -> Models (persistence)
+Ctrl_Auth --> User
+Ctrl_Att --> AttendanceSession
+Ctrl_Att --> Attendance
+Ctrl_Att --> User
+Ctrl_Att --> Subject
+Ctrl_Sub --> Subject
+Ctrl_Sub --> User
+Ctrl_Admin --> User
+Ctrl_Admin --> Subject
+Ctrl_Admin --> Attendance
+Ctrl_Admin --> AttendanceSession
+Ctrl_Admin --> AuditLog
+
+' Authentication flow (JWT)
+actor Student as Role_Student #2196F3
+actor Professor as Role_Professor #43A047
+actor Administrator as Role_Admin #EF6C00
+
+Role_Student -down-> C_Login : enter credentials
+C_Login -> R_Auth : POST /api/auth/login {email,password}
+R_Auth -> Ctrl_Auth : login()
+Ctrl_Auth --> User : find & verify bcrypt hash
+Ctrl_Auth --> C_Login : 200 { token, user }
+C_Login -down-> C_ProtectedRoute : store token (localStorage)
+C_ProtectedRoute -down-> R_Auth : GET /api/auth/me (Authorization: Bearer <JWT>)
+R_Auth -> Ctrl_Auth : me()
+Ctrl_Auth --> C_ProtectedRoute : 200 { id,email,role }
+
+' Protected routes example
+C_Professor -> R_Att : POST /api/attendance/generate (JWT)
+R_Att -> M_Verify : verifyToken()
+M_Verify --> R_Att : req.user {id,email,role}
+R_Att -> Ctrl_Att : generateQR(expiry 1..60)
+Ctrl_Att --> AttendanceSession : create session
+Ctrl_Att --> Attendance : create header (student=null)
+Ctrl_Att --> C_Professor : 201 { token, expiration, sessionId }
+
+' API group labels
+rectangle "API Groups" as API_Groups {
+  [ /api/auth ]
+  [ /api/attendance ]
+  [ /api/subjects ]
+  [ /api/admin ]
+}
+API_Groups -[dashed]-> Routes
+
+@enduml
